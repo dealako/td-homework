@@ -513,6 +513,20 @@
                 "mode" : "000644",
                 "owner" : "root",
                 "group" : "root"
+              },
+              "/etc/cfn/cfn-hup.conf" : {
+                "content" : {
+                  "Fn::Join" : [
+                    "", [
+                      "[main]\n",
+                      "stack=", {"Ref" : "AWS::StackId"}, "\n",
+                      "region=", {"Ref" : "AWS::Region"}, "\n"
+                    ]
+                  ]
+                },
+                "mode" : "000400",
+                "owner" : "root",
+                "group" : "root"
               }
             },
             "services" : {
@@ -621,6 +635,20 @@
                 "mode" : "000644",
                 "owner" : "root",
                 "group" : "root"
+              },
+              "/etc/cfn/cfn-hup.conf" : {
+                "content" : {
+                  "Fn::Join" : [
+                    "", [
+                      "[main]\n",
+                      "stack=", {"Ref" : "AWS::StackId"}, "\n",
+                      "region=", {"Ref" : "AWS::Region"}, "\n"
+                    ]
+                  ]
+                },
+                "mode" : "000400",
+                "owner" : "root",
+                "group" : "root"
               }
             },
             "services" : {
@@ -657,7 +685,7 @@
         "InstanceType" : "t2.micro",
         "SubnetId" : {"Ref" : "PrivateSubnet2c"},
         "Tags" : [
-          {"Key" : "Name", "Value" : {"Fn::Join" : ["-", [{"Ref" : "Environment"}, "WebServer-3-NGINX"]]}},
+          {"Key" : "Name", "Value" : {"Fn::Join" : ["-", [{"Ref" : "Environment"}, "WebServer-3-Apache2"]]}},
           {"Key" : "Environment", "Value" : {"Ref" : "Environment"}},
           {"Key" : "Application", "Value" : {"Ref" : "AWS::StackName"}},
           {"Key" : "Network", "Value" : "Private"}
@@ -685,10 +713,16 @@
                 "    --resource WebServer3Instance",
                 "    --region ", {"Ref" : "AWS::Region"}, " || error_exit 'Failed to run cfn-init'\n",
 
-                "## Nginx setup\n",
-                "cp /tmp/nginx-default.conf /etc/nginx/conf.d/default.conf\n",
+                "## Apache2 setup\n",
+                "## Remove the default site configuration\n",
+                "rm /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-enabled/000-default.conf\n",
+                "## Copy over our configuration\n",
+                "cp /tmp/8900-site-available.conf /etc/apache2/sites-available/8900-site-available.conf\n",
+                "## Enable our configuration\n",
+                "ln -s /etc/apache2/sites-available/8900-site-available.conf /etc/apache2/sites-available/8900-site-enabled.conf\n",
+                "## Make sure our log folders exist...\n",
                 "mkdir -p /var/log/tdcustom/accesslogs /var/log/tdcustom/errorlogs\n",
-                "service nginx restart\n",
+                "service apache2 restart\n",
 
                 "# All is well so signal success\n",
                 "cfn-signal -e 0 -r \"WebServer3Instance setup complete\" '", {"Ref" : "WaitHandle"}, "'\n"
@@ -698,35 +732,88 @@
         }
       },
       "Metadata" : {
-        "Comment1" : "Configure the bootstrap helpers to install the NGINX Web Server",
+        "Comment1" : "Configure the bootstrap helpers to install the Apache2 Web Server",
         "Comment2" : "The web site content is downloaded from the referenced zip file",
         "AWS::CloudFormation::Init" : {
           "config" : {
             "packages" : {
               "apt" : {
                 "ntp" : [],
-                "nginx" : []
+                "apache2" : []
               }
             },
             "sources" : {
-              "/usr/share/nginx/html" : "https://s3-us-west-2.amazonaws.com/td-homework/cloud-formation-web-3.zip"
+              "/var/www/html" : "https://s3-us-west-2.amazonaws.com/td-homework/cloud-formation-web-3.zip"
             },
             "files" : {
-              "/tmp/nginx-default.conf" : {
+              "/tmp/8900-site-available.conf" : {
                 "content" : {
                   "Fn::Join" : [
                     "", [
-                      "server {\n",
-                      "  listen 8900;\n",
-                      "  charset utf-8;\n",
-                      "  access_log                    /var/log/tdcustom/accesslogs/nginx.vhost.access.log;\n",
-                      "  error_log                     /var/log/tdcustom/errorlogs/nginx.vhost.error.log;\n",
-                      "  index                         index.html index.htm;\n",
-                      "}\n"
+                      "<VirtualHost *:8900>\n",
+                      "# The ServerName directive sets the request scheme, hostname and port that\n",
+                      "# the server uses to identify itself. This is used when creating\n",
+                      "# redirection URLs. In the context of virtual hosts, the ServerName\n",
+                      "# specifies what hostname must appear in the request's Host: header to\n",
+                      "# match this virtual host. For the default virtual host (this file) this\n",
+                      "# value is not decisive as it is used as a last resort host regardless.\n",
+                      "# However, you must set it for any further virtual host explicitly.\n",
+                      "#ServerName www.example.com\n",
+                      "\n",
+                      "ServerAdmin td-homework@localhost\n",
+                      "DocumentRoot /var/www/html\n",
+                      "\n",
+                      "# Available loglevels: trace8, ..., trace1, debug, info, notice, warn,\n",
+                      "# error, crit, alert, emerg.\n",
+                      "# It is also possible to configure the loglevel for particular\n",
+                      "# modules, e.g.\n",
+                      "#LogLevel info ssl:warn\n",
+                      "\n",
+                      "ErrorLog /var/log/tdcustom/errorlogs/error.log\n",
+                      "CustomLog /var/log/tdcustom/accesslogs/access.log combined\n",
+                      "\n",
+                      "# For most configuration files from conf-available/, which are\n",
+                      "# enabled or disabled at a global level, it is possible to\n",
+                      "# include a line for only one particular virtual host. For example the\n",
+                      "# following line enables the CGI configuration for this host only\n",
+                      "# after it has been globally disabled with a2disconf.\n",
+                      "#Include conf-available/serve-cgi-bin.conf\n",
+                      "</VirtualHost>\n"
                     ]
                   ]
                 },
                 "mode" : "000644",
+                "owner" : "root",
+                "group" : "root"
+              },
+              "/tmp/ports.conf" : {
+                "content" : {
+                  "Fn::Join" : [
+                    "", [
+                      "# If you just change the port or add more ports here, you will likely also\n",
+                      "# have to change the VirtualHost statement in\n",
+                      "# /etc/apache2/sites-enabled/000-default.conf\n",
+                      "\n",
+                      "Listen 8900\n",
+                      "\n"
+                    ]
+                  ]
+                },
+                "mode" : "000644",
+                "owner" : "root",
+                "group" : "root"
+              },
+              "/etc/cfn/cfn-hup.conf" : {
+                "content" : {
+                  "Fn::Join" : [
+                    "", [
+                      "[main]\n",
+                      "stack=", {"Ref" : "AWS::StackId"}, "\n",
+                      "region=", {"Ref" : "AWS::Region"}, "\n"
+                    ]
+                  ]
+                },
+                "mode" : "000400",
                 "owner" : "root",
                 "group" : "root"
               }
@@ -778,7 +865,7 @@
         "Matcher" : {
           "HttpCode" : "200"
         },
-        "Name" : { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "TargetGroup" ] ] },
+        "Name" : {"Fn::Join" : ["-", [{"Ref" : "AWS::StackName"}, "TargetGroup"]]},
         "Port" : 8900,
         "Protocol" : "HTTP",
         "TargetGroupAttributes" : [
@@ -811,22 +898,22 @@
       }
     },
 
-    "ListenerRuleService": {
+    "ListenerRuleService" : {
       "Type" : "AWS::ElasticLoadBalancingV2::ListenerRule",
       "Properties" : {
         "Actions" : [
           {
-            "TargetGroupArn" : {"Ref": "ELBTargetGroup"},
+            "TargetGroupArn" : {"Ref" : "ELBTargetGroup"},
             "Type" : "forward"
           }
         ],
         "Conditions" : [
           {
             "Field" : "path-pattern",
-            "Values" : [ "/" ]
+            "Values" : ["/"]
           }
         ],
-        "ListenerArn" : {"Ref": "ELBHTTPListener"},
+        "ListenerArn" : {"Ref" : "ELBHTTPListener"},
         "Priority" : 1
       }
     }
