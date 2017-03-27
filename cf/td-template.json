@@ -745,7 +745,7 @@
 
                 "## Apache2 setup\n",
                 "## Remove the default site configuration\n",
-                "rm /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-enabled/000-default.conf\n",
+                "rm -f /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-enabled/000-default.conf\n",
                 "## Copy over our configuration\n",
                 "cp /tmp/8900-site-available.conf /etc/apache2/sites-available/8900-site-available.conf\n",
                 "cp /tmp/ports.conf /etc/apache2/ports.conf\n",
