@@ -747,10 +747,10 @@
                 "## Remove the default site configuration\n",
                 "rm -f /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-enabled/000-default.conf\n",
                 "## Copy over our configuration\n",
-                "cp /tmp/8900-site-available.conf /etc/apache2/sites-available/8900-site-available.conf\n",
+                "cp /tmp/8900-site.conf /etc/apache2/sites-available/8900-site.conf\n",
                 "cp /tmp/ports.conf /etc/apache2/ports.conf\n",
                 "## Enable our configuration\n",
-                "ln -s /etc/apache2/sites-available/8900-site-available.conf /etc/apache2/sites-available/8900-site-enabled.conf\n",
+                "ln -s /etc/apache2/sites-available/8900-site.conf /etc/apache2/sites-enabled/8900-site.conf\n",
                 "## Make sure our log folders exist...\n",
                 "mkdir -p /var/log/tdcustom/accesslogs /var/log/tdcustom/errorlogs\n",
                 "service apache2 restart\n",
@@ -777,7 +777,7 @@
               "/var/www/html" : "https://s3-us-west-2.amazonaws.com/td-homework/cloud-formation-web-3.zip"
             },
             "files" : {
-              "/tmp/8900-site-available.conf" : {
+              "/tmp/8900-site.conf" : {
                 "content" : {
                   "Fn::Join" : [
                     "", [
@@ -851,11 +851,11 @@
             },
             "services" : {
               "sysvinit" : {
-                "nginx" : {
+                "apache2" : {
                   "enabled" : "true",
                   "ensureRunning" : "true",
                   "files" : [
-                    "/etc/nginx/conf.d/default.conf"
+                    "/etc/apache2/sites-available/8900-site.conf"
                   ]
                 }
               }
