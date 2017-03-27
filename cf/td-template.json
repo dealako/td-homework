@@ -31,6 +31,9 @@
     }
   },
   "Resources" : {
+    "WaitHandle" : {
+      "Type" : "AWS::CloudFormation::WaitConditionHandle"
+    },
 
     "DevOpsElasticIP" : {
       "DependsOn" : ["DevOps2a"],
@@ -447,19 +450,32 @@
           "Fn::Base64" : {
             "Fn::Join" : [
               "", [
-                "#!/bin/bash -v\n",
-                "set -o errexit; set -o nounset; set -o pipefail\n",
+                "#!/bin/bash \n",
                 "# Install AWS cfn-bootstrap utilities\n",
                 "apt-get update\n",
                 "apt-get -y install python-setuptools\n",
                 "easy_install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
-                "cfn-init", " --stack ", {"Ref" : "AWS::StackName"},
-                " --resource MyLogicalResourceName",
-                " --configsets bootstrap-chef",
-                " --region ", {"Ref" : "AWS::Region"}, "\n",
+
+                "# Helper function\n",
+                "function error_exit\n",
+                "{\n",
+                "  cfn-signal -e 1 -r \"$1\" '", {"Ref" : "WaitHandle"}, "'\n",
+                "  exit 1\n",
+                "}\n",
+
+                "cfn-init",
+                "    -v",
+                "    --stack ", {"Ref" : "AWS::StackName"},
+                "    --resource WebServer1Instance",
+                "    --region ", {"Ref" : "AWS::Region"}, " || error_exit 'Failed to run cfn-init'\n",
+
                 "## Nginx setup\n",
-                "cp /tmp/nginx/default.conf /etc/nginx/conf.d/default.conf\n",
-                "service nginx restart\n"
+                "cp /tmp/nginx-default.conf /etc/nginx/conf.d/default.conf\n",
+                "mkdir -p /var/log/tdcustom/accesslogs /var/log/tdcustom/errorlogs\n",
+                "service nginx restart\n",
+
+                "# All is well so signal success\n",
+                "cfn-signal -e 0 -r \"WebServer1Instance setup complete\" '", {"Ref" : "WaitHandle"}, "'\n"
               ]
             ]
           }
@@ -478,45 +494,52 @@
             },
             "sources" : {
               "/usr/share/nginx/html" : "https://s3-us-west-2.amazonaws.com/td-homework/cloud-formation-web-1.zip"
-            }
-          },
-          "files" : {
-            "/tmp/nginx/default.conf" : {
-              "content" : {
-                "Fn::Join" : [
-                  "",
-                  [
-                    "# Run NGINX as non-root\n",
-                    "user nginx;\n\n",
-                    "server {\n",
-                    "  listen 8900;\n",
-                    "  charset utf-8;\n",
-                    "  access_log                    /var/log/tdcustom/accesslogs/nginx.vhost.access.log;\n",
-                    "  error_log                     /var/log/tdcustom/errorlogs/nginx.vhost.error.log;\n",
-                    "  index                         index.html index.htm;\n",
-                    "}\n"
+            },
+            "files" : {
+              "/tmp/nginx-default.conf" : {
+                "content" : {
+                  "Fn::Join" : [
+                    "", [
+                      "server {\n",
+                      "  listen 8900;\n",
+                      "  charset utf-8;\n",
+                      "  access_log                    /var/log/tdcustom/accesslogs/nginx.vhost.access.log;\n",
+                      "  error_log                     /var/log/tdcustom/errorlogs/nginx.vhost.error.log;\n",
+                      "  index                         index.html index.htm;\n",
+                      "}\n"
+                    ]
                   ]
-                ]
-              },
-              "mode" : "000755",
-              "owner" : "nginx",
-              "group" : "nginx"
-            }
-          },
-          "services" : {
-            "sysvinit" : {
-              "nginx" : {
-                "enabled" : "true",
-                "ensureRunning" : "true",
-                "files" : [
-                  "/etc/nginx/conf.d/default.conf"
-                ]
+                },
+                "mode" : "000644",
+                "owner" : "root",
+                "group" : "root"
+              }
+            },
+            "services" : {
+              "sysvinit" : {
+                "nginx" : {
+                  "enabled" : "true",
+                  "ensureRunning" : "true",
+                  "files" : [
+                    "/etc/nginx/conf.d/default.conf"
+                  ]
+                }
               }
             }
           }
         }
       }
     },
+
+    "WebServer1WaitCondition" : {
+      "Type" : "AWS::CloudFormation::WaitCondition",
+      "DependsOn" : "WebServer1Instance",
+      "Properties" : {
+        "Handle" : {"Ref" : "WaitHandle"},
+        "Timeout" : "300"
+      }
+    },
+
     "WebServer2Instance" : {
       "Type" : "AWS::EC2::Instance",
       "Properties" : {
@@ -535,19 +558,32 @@
           "Fn::Base64" : {
             "Fn::Join" : [
               "", [
-                "#!/bin/bash -v\n",
-                "set -o errexit; set -o nounset; set -o pipefail\n",
+                "#!/bin/bash \n",
                 "# Install AWS cfn-bootstrap utilities\n",
                 "apt-get update\n",
                 "apt-get -y install python-setuptools\n",
                 "easy_install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
-                "cfn-init", " --stack ", {"Ref" : "AWS::StackName"},
-                " --resource MyLogicalResourceName",
-                " --configsets bootstrap-chef",
-                " --region ", {"Ref" : "AWS::Region"}, "\n",
+
+                "# Helper function\n",
+                "function error_exit\n",
+                "{\n",
+                "  cfn-signal -e 1 -r \"$1\" '", {"Ref" : "WaitHandle"}, "'\n",
+                "  exit 1\n",
+                "}\n",
+
+                "cfn-init",
+                "    -v",
+                "    --stack ", {"Ref" : "AWS::StackName"},
+                "    --resource WebServer2Instance",
+                "    --region ", {"Ref" : "AWS::Region"}, " || error_exit 'Failed to run cfn-init'\n",
+
                 "## Nginx setup\n",
-                "cp /tmp/nginx/default.conf /etc/nginx/conf.d/default.conf\n",
-                "service nginx restart\n"
+                "cp /tmp/nginx-default.conf /etc/nginx/conf.d/default.conf\n",
+                "mkdir -p /var/log/tdcustom/accesslogs /var/log/tdcustom/errorlogs\n",
+                "service nginx restart\n",
+
+                "# All is well so signal success\n",
+                "cfn-signal -e 0 -r \"WebServer2Instance setup complete\" '", {"Ref" : "WaitHandle"}, "'\n"
               ]
             ]
           }
@@ -566,43 +602,49 @@
             },
             "sources" : {
               "/usr/share/nginx/html" : "https://s3-us-west-2.amazonaws.com/td-homework/cloud-formation-web-2.zip"
-            }
-          },
-          "files" : {
-            "/tmp/nginx/default.conf" : {
-              "content" : {
-                "Fn::Join" : [
-                  "",
-                  [
-                    "# Run NGINX as non-root\n",
-                    "user nginx;\n\n",
-                    "server {\n",
-                    "  listen 8900;\n",
-                    "  charset utf-8;\n",
-                    "  access_log                    /var/log/tdcustom/accesslogs/nginx.vhost.access.log;\n",
-                    "  error_log                     /var/log/tdcustom/errorlogs/nginx.vhost.error.log;\n",
-                    "  index                         index.html index.htm;\n",
-                    "}\n"
+            },
+            "files" : {
+              "/tmp/nginx-default.conf" : {
+                "content" : {
+                  "Fn::Join" : [
+                    "", [
+                      "server {\n",
+                      "  listen 8900;\n",
+                      "  charset utf-8;\n",
+                      "  access_log                    /var/log/tdcustom/accesslogs/nginx.vhost.access.log;\n",
+                      "  error_log                     /var/log/tdcustom/errorlogs/nginx.vhost.error.log;\n",
+                      "  index                         index.html index.htm;\n",
+                      "}\n"
+                    ]
                   ]
-                ]
-              },
-              "mode" : "000755",
-              "owner" : "nginx",
-              "group" : "nginx"
-            }
-          },
-          "services" : {
-            "sysvinit" : {
-              "nginx" : {
-                "enabled" : "true",
-                "ensureRunning" : "true",
-                "files" : [
-                  "/etc/nginx/conf.d/default.conf"
-                ]
+                },
+                "mode" : "000644",
+                "owner" : "root",
+                "group" : "root"
+              }
+            },
+            "services" : {
+              "sysvinit" : {
+                "nginx" : {
+                  "enabled" : "true",
+                  "ensureRunning" : "true",
+                  "files" : [
+                    "/etc/nginx/conf.d/default.conf"
+                  ]
+                }
               }
             }
           }
         }
+      }
+    },
+
+    "WebServer2WaitCondition" : {
+      "Type" : "AWS::CloudFormation::WaitCondition",
+      "DependsOn" : "WebServer2Instance",
+      "Properties" : {
+        "Handle" : {"Ref" : "WaitHandle"},
+        "Timeout" : "300"
       }
     },
 
@@ -624,19 +666,32 @@
           "Fn::Base64" : {
             "Fn::Join" : [
               "", [
-                "#!/bin/bash -v\n",
-                "set -o errexit; set -o nounset; set -o pipefail\n",
+                "#!/bin/bash \n",
                 "# Install AWS cfn-bootstrap utilities\n",
                 "apt-get update\n",
                 "apt-get -y install python-setuptools\n",
                 "easy_install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
-                "cfn-init", " --stack ", {"Ref" : "AWS::StackName"},
-                " --resource MyLogicalResourceName",
-                " --configsets bootstrap-chef",
-                " --region ", {"Ref" : "AWS::Region"}, "\n",
+
+                "# Helper function\n",
+                "function error_exit\n",
+                "{\n",
+                "  cfn-signal -e 1 -r \"$1\" '", {"Ref" : "WaitHandle"}, "'\n",
+                "  exit 1\n",
+                "}\n",
+
+                "cfn-init",
+                "    -v",
+                "    --stack ", {"Ref" : "AWS::StackName"},
+                "    --resource WebServer3Instance",
+                "    --region ", {"Ref" : "AWS::Region"}, " || error_exit 'Failed to run cfn-init'\n",
+
                 "## Nginx setup\n",
-                "cp /tmp/nginx/default.conf /etc/nginx/conf.d/default.conf\n",
-                "service nginx restart\n"
+                "cp /tmp/nginx-default.conf /etc/nginx/conf.d/default.conf\n",
+                "mkdir -p /var/log/tdcustom/accesslogs /var/log/tdcustom/errorlogs\n",
+                "service nginx restart\n",
+
+                "# All is well so signal success\n",
+                "cfn-signal -e 0 -r \"WebServer3Instance setup complete\" '", {"Ref" : "WaitHandle"}, "'\n"
               ]
             ]
           }
@@ -655,39 +710,36 @@
             },
             "sources" : {
               "/usr/share/nginx/html" : "https://s3-us-west-2.amazonaws.com/td-homework/cloud-formation-web-3.zip"
-            }
-          },
-          "files" : {
-            "/tmp/nginx/default.conf" : {
-              "content" : {
-                "Fn::Join" : [
-                  "",
-                  [
-                    "# Run NGINX as non-root\n",
-                    "user nginx;\n\n",
-                    "server {\n",
-                    "  listen 8900;\n",
-                    "  charset utf-8;\n",
-                    "  access_log                    /var/log/tdcustom/accesslogs/nginx.vhost.access.log;\n",
-                    "  error_log                     /var/log/tdcustom/errorlogs/nginx.vhost.error.log;\n",
-                    "  index                         index.html index.htm;\n",
-                    "}\n"
+            },
+            "files" : {
+              "/tmp/nginx-default.conf" : {
+                "content" : {
+                  "Fn::Join" : [
+                    "", [
+                      "server {\n",
+                      "  listen 8900;\n",
+                      "  charset utf-8;\n",
+                      "  access_log                    /var/log/tdcustom/accesslogs/nginx.vhost.access.log;\n",
+                      "  error_log                     /var/log/tdcustom/errorlogs/nginx.vhost.error.log;\n",
+                      "  index                         index.html index.htm;\n",
+                      "}\n"
+                    ]
                   ]
-                ]
-              },
-              "mode" : "000755",
-              "owner" : "nginx",
-              "group" : "nginx"
-            }
-          },
-          "services" : {
-            "sysvinit" : {
-              "nginx" : {
-                "enabled" : "true",
-                "ensureRunning" : "true",
-                "files" : [
-                  "/etc/nginx/conf.d/default.conf"
-                ]
+                },
+                "mode" : "000644",
+                "owner" : "root",
+                "group" : "root"
+              }
+            },
+            "services" : {
+              "sysvinit" : {
+                "nginx" : {
+                  "enabled" : "true",
+                  "ensureRunning" : "true",
+                  "files" : [
+                    "/etc/nginx/conf.d/default.conf"
+                  ]
+                }
               }
             }
           }
@@ -695,11 +747,20 @@
       }
     },
 
+    "WebServer3WaitCondition" : {
+      "Type" : "AWS::CloudFormation::WaitCondition",
+      "DependsOn" : "WebServer3Instance",
+      "Properties" : {
+        "Handle" : {"Ref" : "WaitHandle"},
+        "Timeout" : "300"
+      }
+    },
+
     "ElasticLoadBalancer" : {
       "DependsOn" : ["WebServer1Instance", "WebServer2Instance", "WebServer3Instance"],
       "Type" : "AWS::ElasticLoadBalancingV2::LoadBalancer",
       "Properties" : {
-        "Scheme" : "internet-facing",
+        "Scheme" : "internal",
         "SecurityGroups" : [{"Ref" : "ELBSecurityGroup"}],
         "Subnets" : [{"Ref" : "PrivateSubnet2a"}, {"Ref" : "PrivateSubnet2b"}, {"Ref" : "PrivateSubnet2c"}]
       }
@@ -713,10 +774,11 @@
         "HealthCheckProtocol" : "HTTP",
         "HealthCheckTimeoutSeconds" : 10,
         "HealthyThresholdCount" : 4,
+        "UnhealthyThresholdCount" : 3,
         "Matcher" : {
           "HttpCode" : "200"
         },
-        "Name" : "ELBTargetGroup",
+        "Name" : { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "TargetGroup" ] ] },
         "Port" : 8900,
         "Protocol" : "HTTP",
         "TargetGroupAttributes" : [
@@ -730,7 +792,6 @@
           {"Id" : {"Ref" : "WebServer2Instance"}, "Port" : 8900},
           {"Id" : {"Ref" : "WebServer3Instance"}, "Port" : 8900}
         ],
-        "UnhealthyThresholdCount" : 3,
         "VpcId" : {"Ref" : "VPC"}
       }
     },
@@ -748,6 +809,26 @@
         "Port" : "80",
         "Protocol" : "HTTP"
       }
+    },
+
+    "ListenerRuleService": {
+      "Type" : "AWS::ElasticLoadBalancingV2::ListenerRule",
+      "Properties" : {
+        "Actions" : [
+          {
+            "TargetGroupArn" : {"Ref": "ELBTargetGroup"},
+            "Type" : "forward"
+          }
+        ],
+        "Conditions" : [
+          {
+            "Field" : "path-pattern",
+            "Values" : [ "/" ]
+          }
+        ],
+        "ListenerArn" : {"Ref": "ELBHTTPListener"},
+        "Priority" : 1
+      }
     }
 
   },
@@ -760,8 +841,12 @@
       }
     },
     "DevOpsHost" : {
-      "Value" : {"Fn::Join" : ["", ["ssh -i ~/.ssh/", {"Ref" : "KeyPair"}, ".pem", "ubuntu@", {"Fn::GetAtt" : ["DevOps2a", "PublicDnsName"]}]]},
+      "Value" : {"Fn::Join" : ["", ["ssh -i ~/.ssh/", {"Ref" : "KeyPair"}, ".pem ", "ubuntu@", {"Fn::GetAtt" : ["DevOps2a", "PublicDnsName"]}]]},
       "Description" : "Login command for DevOps"
+    },
+    "ELBHost" : {
+      "Value" : {"Fn::Join" : ["", ["http://", {"Fn::GetAtt" : ["ElasticLoadBalancer", "DNSName"]}]]},
+      "Description" : "ELB URL"
     }
   },
 
