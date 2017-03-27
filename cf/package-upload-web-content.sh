@@ -54,5 +54,5 @@ for i in "${web_dirs[@]}"; do
     zip ../${archive} *
     popd
     log "Uploading archive: ${_Y}${archive}${_W}..."
-    aws s3 cp ${archive} s3://${s3_bucket}/
+    aws s3 cp ${archive} s3://${s3_bucket}/ --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
 done
