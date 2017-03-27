@@ -28,3 +28,9 @@ The create and manage the CloudFormation stack, a set of helper scripts (example
 
 This CloudFormation template is designed to deploy in the US West 2 region.  The web servers and NAT router are not accessible
 via SSH port 22 unless you first jump to the DevOps box.
+
+# TODO
+
+- Configure NGINX to run as non-root user
+- Configure Apache2 to run as non-roo user
+- Configure ELB to listen TLS over port 443 - CloudFormation needs SSL setup details to bind to HTTPS
