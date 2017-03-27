@@ -42,6 +42,16 @@ else
 fi
 
 ###############################################################################
+# Load the utility definitions
+###############################################################################
+if [[ -f "$DIR/utils.sh" ]]; then
+  . "$DIR/utils.sh"
+else
+  echo "Unable to source: utils.sh"
+  exit 1
+fi
+
+###############################################################################
 # Update the stack
 ###############################################################################
 if [[ -z "$1" ]]; then
@@ -59,8 +69,15 @@ if [[ -z "$2" ]]; then
     exit -1
 fi
 
+template_filename="td-template.json"
+template_file="file://${template_filename}"
+[[ -f ${template_filename} ]] || die "Unable to read template file: ${template_filename}. Exiting..."
+
+log "Validating template: ${_Y}${template_file}${_W}..."
+aws cloudformation validate-template --template-body ${template_file}
+
 log "Updating CloudFormation stack-name=${_Y}$1${_W} with KeyPair=${_Y}$2${_W}..."
 aws cloudformation update-stack \
    --stack-name $1 \
-   --template-body file://td-template.json \
+   --template-body ${template_file} \
    --parameters ParameterKey=KeyPair,ParameterValue=$2
