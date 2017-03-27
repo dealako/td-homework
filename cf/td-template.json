@@ -36,8 +36,8 @@
     },
 
     "DevOpsElasticIP" : {
-      "DependsOn" : ["DevOps2a"],
       "Type" : "AWS::EC2::EIP",
+      "DependsOn" : ["DevOps2a"],
       "Properties" : {
         "Domain" : "vpc",
         "InstanceId" : {"Ref" : "DevOps2a"}
@@ -45,8 +45,8 @@
     },
 
     "DevOpsElasticIPAssociation" : {
-      "DependsOn" : ["DevOps2a", "DevOpsElasticIP"],
       "Type" : "AWS::EC2::EIPAssociation",
+      "DependsOn" : ["DevOps2a", "DevOpsElasticIP"],
       "Properties" : {
         "InstanceId" : {"Ref" : "DevOps2a"},
         "EIP" : {"Ref" : "DevOpsElasticIP"}
@@ -54,8 +54,8 @@
     },
 
     "NATElasticIp" : {
-      "DependsOn" : ["NatDevice2a"],
       "Type" : "AWS::EC2::EIP",
+      "DependsOn" : ["NatDevice2a"],
       "Properties" : {
         "Domain" : "vpc",
         "InstanceId" : {"Ref" : "NatDevice2a"}
@@ -63,8 +63,8 @@
     },
 
     "NATElasticIpAssociation" : {
-      "DependsOn" : ["NatDevice2a", "NATElasticIp"],
       "Type" : "AWS::EC2::EIPAssociation",
+      "DependsOn" : ["NatDevice2a", "NATElasticIp"],
       "Properties" : {
         "InstanceId" : {"Ref" : "NatDevice2a"},
         "EIP" : {"Ref" : "NATElasticIp"}
@@ -88,8 +88,8 @@
     },
 
     "PublicSubnet2a" : {
-      "DependsOn" : ["VPC"],
       "Type" : "AWS::EC2::Subnet",
+      "DependsOn" : ["VPC"],
       "Properties" : {
         "VpcId" : {"Ref" : "VPC"},
         "CidrBlock" : {"Fn::FindInMap" : ["SubnetConfig", "PublicSubnet2a", "CIDR"]},
@@ -116,8 +116,8 @@
     },
 
     "VPCGatewayAttachment" : {
-      "DependsOn" : ["VPC", "InternetGateway"],
       "Type" : "AWS::EC2::VPCGatewayAttachment",
+      "DependsOn" : ["VPC", "InternetGateway"],
       "Properties" : {
         "VpcId" : {"Ref" : "VPC"},
         "InternetGatewayId" : {"Ref" : "InternetGateway"}
@@ -125,8 +125,8 @@
     },
 
     "PublicRouteTable" : {
-      "DependsOn" : ["VPC"],
       "Type" : "AWS::EC2::RouteTable",
+      "DependsOn" : ["VPC"],
       "Properties" : {
         "VpcId" : {"Ref" : "VPC"},
         "Tags" : [
@@ -138,8 +138,8 @@
     },
 
     "PublicRoute" : {
-      "DependsOn" : ["PublicRouteTable", "InternetGateway", "VPCGatewayAttachment"],
       "Type" : "AWS::EC2::Route",
+      "DependsOn" : ["PublicRouteTable", "InternetGateway", "VPCGatewayAttachment"],
       "Properties" : {
         "RouteTableId" : {"Ref" : "PublicRouteTable"},
         "DestinationCidrBlock" : "0.0.0.0/0",
@@ -148,8 +148,8 @@
     },
 
     "PublicSubnetRouteTableAssociation2a" : {
-      "DependsOn" : ["PublicSubnet2a", "PublicRouteTable"],
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "DependsOn" : ["PublicSubnet2a", "PublicRouteTable"],
       "Properties" : {
         "SubnetId" : {"Ref" : "PublicSubnet2a"},
         "RouteTableId" : {"Ref" : "PublicRouteTable"}
@@ -157,8 +157,8 @@
     },
 
     "PrivateSubnet2a" : {
-      "DependsOn" : ["VPC"],
       "Type" : "AWS::EC2::Subnet",
+      "DependsOn" : ["VPC"],
       "Properties" : {
         "VpcId" : {"Ref" : "VPC"},
         "CidrBlock" : {"Fn::FindInMap" : ["SubnetConfig", "PrivateSubnet2a", "CIDR"]},
@@ -172,8 +172,8 @@
     },
 
     "PrivateSubnet2b" : {
-      "DependsOn" : ["VPC"],
       "Type" : "AWS::EC2::Subnet",
+      "DependsOn" : ["VPC"],
       "Properties" : {
         "VpcId" : {"Ref" : "VPC"},
         "CidrBlock" : {"Fn::FindInMap" : ["SubnetConfig", "PrivateSubnet2b", "CIDR"]},
@@ -201,8 +201,8 @@
     },
 
     "PrivateRouteTable2a" : {
-      "DependsOn" : ["VPC"],
       "Type" : "AWS::EC2::RouteTable",
+      "DependsOn" : ["VPC"],
       "Properties" : {
         "VpcId" : {"Ref" : "VPC"},
         "Tags" : [
@@ -214,8 +214,8 @@
     },
 
     "PrivateRouteTable2b" : {
-      "DependsOn" : ["VPC"],
       "Type" : "AWS::EC2::RouteTable",
+      "DependsOn" : ["VPC"],
       "Properties" : {
         "VpcId" : {"Ref" : "VPC"},
         "Tags" : [
@@ -227,8 +227,8 @@
     },
 
     "PrivateRouteTable2c" : {
-      "DependsOn" : ["VPC"],
       "Type" : "AWS::EC2::RouteTable",
+      "DependsOn" : ["VPC"],
       "Properties" : {
         "VpcId" : {"Ref" : "VPC"},
         "Tags" : [
@@ -240,8 +240,8 @@
     },
 
     "PrivateSubnetRouteTableAssociation2a" : {
-      "DependsOn" : ["PrivateSubnet2a", "PrivateRouteTable2a"],
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "DependsOn" : ["PrivateSubnet2a", "PrivateRouteTable2a"],
       "Properties" : {
         "SubnetId" : {"Ref" : "PrivateSubnet2a"},
         "RouteTableId" : {"Ref" : "PrivateRouteTable2a"}
@@ -249,8 +249,8 @@
     },
 
     "PrivateSubnetRouteTableAssociation2b" : {
-      "DependsOn" : ["PrivateSubnet2b", "PrivateRouteTable2b"],
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "DependsOn" : ["PrivateSubnet2b", "PrivateRouteTable2b"],
       "Properties" : {
         "SubnetId" : {"Ref" : "PrivateSubnet2b"},
         "RouteTableId" : {"Ref" : "PrivateRouteTable2b"}
@@ -258,8 +258,8 @@
     },
 
     "PrivateSubnetRouteTableAssociation2c" : {
-      "DependsOn" : ["PrivateSubnet2c", "PrivateRouteTable2c"],
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "DependsOn" : ["PrivateSubnet2c", "PrivateRouteTable2c"],
       "Properties" : {
         "SubnetId" : {"Ref" : "PrivateSubnet2c"},
         "RouteTableId" : {"Ref" : "PrivateRouteTable2c"}
@@ -306,8 +306,8 @@
     },
 
     "NATSecurityGroup" : {
-      "DependsOn" : ["DevOpsSecurityGroup"],
       "Type" : "AWS::EC2::SecurityGroup",
+      "DependsOn" : ["DevOpsSecurityGroup"],
       "Properties" : {
         "GroupDescription" : "NAT Device Security Group",
         "VpcId" : {"Ref" : "VPC"},
@@ -345,12 +345,15 @@
           {"IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0"},
           {"IpProtocol" : "tcp", "FromPort" : "443", "ToPort" : "443", "CidrIp" : "0.0.0.0/0"}
         ]
+      },
+      "Metadata" : {
+        "Comment1" : "ELB Security Group which provides inbound access - typically HTTP and HTTPS"
       }
     },
 
     "WebServerSecurityGroup" : {
-      "DependsOn" : ["DevOpsSecurityGroup", "ELBSecurityGroup"],
       "Type" : "AWS::EC2::SecurityGroup",
+      "DependsOn" : ["DevOpsSecurityGroup", "ELBSecurityGroup"],
       "Properties" : {
         "GroupDescription" : "Web Server Security Group",
         "VpcId" : {"Ref" : "VPC"}
@@ -413,7 +416,34 @@
         "SecurityGroupIds" : [{"Ref" : "DevOpsSecurityGroup"}],
         "Tags" : [
           {"Key" : "Name", "Value" : {"Fn::Join" : ["-", [{"Ref" : "Environment"}, "DevOps"]]}}
-        ]
+        ],
+        "UserData" : {
+          "Fn::Base64" : {
+            "Fn::Join" : [
+              "", [
+                "#!/bin/bash \n",
+                "# Install AWS cfn-bootstrap utilities\n",
+                "apt-get update\n",
+                "apt-get -y install python-setuptools\n",
+                "easy_install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
+
+                "# Helper function\n",
+                "function error_exit\n",
+                "{\n",
+                "  cfn-signal -e 1 -r \"$1\" '", {"Ref" : "WaitHandle"}, "'\n",
+                "  exit 1\n",
+                "}\n",
+
+                "cfn-init",
+                "    -v",
+                "    --stack ", {"Ref" : "AWS::StackName"},
+                "    --resource WebServer1Instance",
+                "    --region ", {"Ref" : "AWS::Region"}, " || error_exit 'Failed to run cfn-init'\n"
+
+              ]
+            ]
+          }
+        }
       }
     },
 
@@ -547,7 +577,7 @@
 
     "WebServer1WaitCondition" : {
       "Type" : "AWS::CloudFormation::WaitCondition",
-      "DependsOn" : "WebServer1Instance",
+      "DependsOn" : ["WebServer1Instance"],
       "Properties" : {
         "Handle" : {"Ref" : "WaitHandle"},
         "Timeout" : "300"
@@ -669,7 +699,7 @@
 
     "WebServer2WaitCondition" : {
       "Type" : "AWS::CloudFormation::WaitCondition",
-      "DependsOn" : "WebServer2Instance",
+      "DependsOn" : ["WebServer2Instance"],
       "Properties" : {
         "Handle" : {"Ref" : "WaitHandle"},
         "Timeout" : "300"
@@ -845,9 +875,10 @@
     },
 
     "ElasticLoadBalancer" : {
-      "DependsOn" : ["WebServer1Instance", "WebServer2Instance", "WebServer3Instance"],
       "Type" : "AWS::ElasticLoadBalancingV2::LoadBalancer",
+      "DependsOn" : ["WebServer1Instance", "WebServer2Instance", "WebServer3Instance"],
       "Properties" : {
+        "Name" : "ElasticLoadBalancer",
         "Scheme" : "internal",
         "SecurityGroups" : [{"Ref" : "ELBSecurityGroup"}],
         "Subnets" : [{"Ref" : "PrivateSubnet2a"}, {"Ref" : "PrivateSubnet2b"}, {"Ref" : "PrivateSubnet2c"}]
@@ -855,14 +886,14 @@
     },
 
     "ELBTargetGroup" : {
-      "DependsOn" : ["ElasticLoadBalancer"],
       "Type" : "AWS::ElasticLoadBalancingV2::TargetGroup",
+      "DependsOn" : ["ElasticLoadBalancer"],
       "Properties" : {
         "HealthCheckIntervalSeconds" : 30,
         "HealthCheckProtocol" : "HTTP",
         "HealthCheckTimeoutSeconds" : 10,
         "HealthyThresholdCount" : 4,
-        "UnhealthyThresholdCount" : 3,
+        "UnhealthyThresholdCount" : 2,
         "Matcher" : {
           "HttpCode" : "200"
         },
@@ -886,6 +917,7 @@
 
     "ELBHTTPListener" : {
       "Type" : "AWS::ElasticLoadBalancingV2::Listener",
+      "DependsOn" : ["ElasticLoadBalancer", "ELBTargetGroup"],
       "Properties" : {
         "DefaultActions" : [
           {
@@ -901,6 +933,7 @@
 
     "ListenerRuleService" : {
       "Type" : "AWS::ElasticLoadBalancingV2::ListenerRule",
+      "DependsOn" : ["ELBHTTPListener", "ELBTargetGroup"],
       "Properties" : {
         "Actions" : [
           {
