@@ -47,6 +47,14 @@ aws cloudformation update-stack \
   --parameters ParameterKey=KeyPair,ParameterValue=my-key-name
 ```
 
+## CloudFormation Init
+
+Log Files:
+- /var/log/cfn-init-cmd.log
+- /var/log/cfn-init.log
+- /var/log/cfn-wire.log
+- /var/lib/cloud/instance/scripts/part-001
+
 ## References
 
 | Name              | Link                           |
@@ -58,5 +66,7 @@ aws cloudformation update-stack \
 | CF Public/Private Subnets Example | https://github.com/widdix/aws-cf-templates/blob/master/vpc/vpc-2azs.yaml |
 | CF VPC Example    | https://github.com/markitx/cloud-formation-templates/blob/master/vpc.template |
 | CF ELB Docs       | http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-elb.html |
+| CF Security Group Ingress Notes | http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-security-group-ingress.html |
 | CF Referencing Security Group in VPC | http://serverfault.com/questions/786705/cloud-formation-template-add-ingress-rule-to-existing-security-group |
 | ELB and EIP       | https://shlomoswidler.com/2009/07/elastic-in-elastic-load-balancing-elb.html |
+| CF Init Debug     | https://forums.aws.amazon.com/message.jspa?messageID=476964 |
