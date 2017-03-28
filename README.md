@@ -34,3 +34,31 @@ via SSH port 22 unless you first jump to the DevOps box.
 - Configure NGINX to run as non-root user
 - Configure Apache2 to run as non-root user
 - Configure ELB to listen TLS over port 443 - CloudFormation needs SSL setup details to bind to HTTPS
+
+# Testing
+
+To validate the deployment, review the CloudFormation output for the ELB host.  Open the ELB host link in a web browser.
+
+Alternatively, log into the DevOps box and run the following (for example):
+
+```bash
+ubuntu@ip-10-0-0-243:~$ for i in `seq 1 100`; do curl -s http://internal-ElasticLoadBalancer-2120497040.us-west-2.elb.amazonaws.com | grep Hello; sleep 1; done
+  <h1>Hello! NGINX is Running on Web 2</h1>
+  <h1>Hello! NGINX is Running on Web 2</h1>
+  <h1>Hello! NGINX is Running on Web 2</h1>
+  <h1>Hello! NGINX is Running on Web 2</h1>
+  <h1>Hello! Apache2 is Running on Web 3</h1>
+  <h1>Hello! Apache2 is Running on Web 3</h1>
+  <h1>Hello! Apache2 is Running on Web 3</h1>
+  <h1>Hello! NGINX is Running on Web 1</h1>
+  <h1>Hello! Apache2 is Running on Web 3</h1>
+  <h1>Hello! NGINX is Running on Web 1</h1>
+  <h1>Hello! NGINX is Running on Web 2</h1>
+  <h1>Hello! NGINX is Running on Web 1</h1>
+  <h1>Hello! Apache2 is Running on Web 3</h1>
+  <h1>Hello! Apache2 is Running on Web 3</h1>
+  <h1>Hello! NGINX is Running on Web 1</h1>
+  <h1>Hello! NGINX is Running on Web 1</h1>
+  <h1>Hello! Apache2 is Running on Web 3</h1>
+^C
+```
