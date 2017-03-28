@@ -24,10 +24,12 @@
     },
     "SubnetConfig" : {
       "VPC" : {"CIDR" : "10.0.0.0/16"},
-      "PublicSubnet2a" : {"CIDR" : "10.0.0.0/18", "AZ" : "us-west-2a"},
-      "PrivateSubnet2a" : {"CIDR" : "10.0.64.0/18", "AZ" : "us-west-2a"},
-      "PrivateSubnet2b" : {"CIDR" : "10.0.128.0/18", "AZ" : "us-west-2b"},
-      "PrivateSubnet2c" : {"CIDR" : "10.0.192.0/18", "AZ" : "us-west-2c"}
+      "PublicSubnet2a" : {"CIDR" : "10.0.1.0/24", "AZ" : "us-west-2a"},
+      "PublicSubnet2b" : {"CIDR" : "10.0.2.0/24", "AZ" : "us-west-2b"},
+      "PublicSubnet2c" : {"CIDR" : "10.0.3.0/24", "AZ" : "us-west-2c"},
+      "PrivateSubnet2a" : {"CIDR" : "10.0.4.0/24", "AZ" : "us-west-2a"},
+      "PrivateSubnet2b" : {"CIDR" : "10.0.5.0/24", "AZ" : "us-west-2b"},
+      "PrivateSubnet2c" : {"CIDR" : "10.0.6.0/24", "AZ" : "us-west-2c"}
     }
   },
   "Resources" : {
@@ -102,6 +104,37 @@
       }
     },
 
+    "PublicSubnet2b" : {
+      "Type" : "AWS::EC2::Subnet",
+      "DependsOn" : ["VPC"],
+      "Properties" : {
+        "VpcId" : {"Ref" : "VPC"},
+        "CidrBlock" : {"Fn::FindInMap" : ["SubnetConfig", "PublicSubnet2b", "CIDR"]},
+        "AvailabilityZone" : {"Fn::FindInMap" : ["SubnetConfig", "PublicSubnet2b", "AZ"]},
+        "Tags" : [
+          {"Key" : "Name", "Value" : {"Fn::Join" : ["-", [{"Ref" : "Environment"}, "PublicSubnet-2b"]]}},
+          {"Key" : "Environment", "Value" : {"Ref" : "Environment"}},
+          {"Key" : "Application", "Value" : {"Ref" : "AWS::StackName"}}
+        ]
+      }
+    },
+
+    "PublicSubnet2c" : {
+      "Type" : "AWS::EC2::Subnet",
+      "DependsOn" : ["VPC"],
+      "Properties" : {
+        "VpcId" : {"Ref" : "VPC"},
+        "CidrBlock" : {"Fn::FindInMap" : ["SubnetConfig", "PublicSubnet2c", "CIDR"]},
+        "AvailabilityZone" : {"Fn::FindInMap" : ["SubnetConfig", "PublicSubnet2c", "AZ"]},
+        "Tags" : [
+          {"Key" : "Name", "Value" : {"Fn::Join" : ["-", [{"Ref" : "Environment"}, "PublicSubnet-2c"]]}},
+          {"Key" : "Environment", "Value" : {"Ref" : "Environment"}},
+          {"Key" : "Application", "Value" : {"Ref" : "AWS::StackName"}}
+        ]
+      }
+    },
+
+
     "InternetGateway" : {
       "Type" : "AWS::EC2::InternetGateway",
       "DependsOn" : ["VPC"],
@@ -152,6 +185,24 @@
       "DependsOn" : ["PublicSubnet2a", "PublicRouteTable"],
       "Properties" : {
         "SubnetId" : {"Ref" : "PublicSubnet2a"},
+        "RouteTableId" : {"Ref" : "PublicRouteTable"}
+      }
+    },
+
+    "PublicSubnetRouteTableAssociation2b" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "DependsOn" : ["PublicSubnet2b", "PublicRouteTable"],
+      "Properties" : {
+        "SubnetId" : {"Ref" : "PublicSubnet2b"},
+        "RouteTableId" : {"Ref" : "PublicRouteTable"}
+      }
+    },
+
+    "PublicSubnetRouteTableAssociation2c" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "DependsOn" : ["PublicSubnet2c", "PublicRouteTable"],
+      "Properties" : {
+        "SubnetId" : {"Ref" : "PublicSubnet2c"},
         "RouteTableId" : {"Ref" : "PublicRouteTable"}
       }
     },
@@ -881,7 +932,7 @@
         "Name" : "ElasticLoadBalancer",
         "Scheme" : "internal",
         "SecurityGroups" : [{"Ref" : "ELBSecurityGroup"}],
-        "Subnets" : [{"Ref" : "PrivateSubnet2a"}, {"Ref" : "PrivateSubnet2b"}, {"Ref" : "PrivateSubnet2c"}]
+        "Subnets" : [{"Ref" : "PublicSubnet2a"}, {"Ref" : "PublicSubnet2b"}, {"Ref" : "PublicSubnet2c"}]
       }
     },
 
