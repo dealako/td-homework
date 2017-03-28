@@ -24,10 +24,10 @@
     },
     "SubnetConfig" : {
       "VPC" : {"CIDR" : "10.0.0.0/16"},
-      "PublicSubnet2a" : {"CIDR" : "10.0.0.0/24", "AZ" : "us-west-2a"},
-      "PrivateSubnet2a" : {"CIDR" : "10.0.1.0/24", "AZ" : "us-west-2a"},
-      "PrivateSubnet2b" : {"CIDR" : "10.0.2.0/24", "AZ" : "us-west-2b"},
-      "PrivateSubnet2c" : {"CIDR" : "10.0.3.0/24", "AZ" : "us-west-2c"}
+      "PublicSubnet2a" : {"CIDR" : "10.0.0.0/18", "AZ" : "us-west-2a"},
+      "PrivateSubnet2a" : {"CIDR" : "10.0.64.0/18", "AZ" : "us-west-2a"},
+      "PrivateSubnet2b" : {"CIDR" : "10.0.128.0/18", "AZ" : "us-west-2b"},
+      "PrivateSubnet2c" : {"CIDR" : "10.0.192.0/18", "AZ" : "us-west-2c"}
     }
   },
   "Resources" : {
