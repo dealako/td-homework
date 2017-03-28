@@ -50,7 +50,8 @@ accessible via SSH tcp port 22 unless you first jump to the DevOps box.
 
 To validate the deployment, review the CloudFormation output for the ELB host.  Open the ELB host link in a web browser.
 
-Alternatively, log into the DevOps box and run the following (for example):
+Alternatively, log into the DevOps box and run the following (just an example - you'll need to adjust the default 
+Security Group of the ELB for the DevOps box to access the ELB via HTTP/S):
 
 ```bash
 ubuntu@ip-10-0-0-243:~$ for i in `seq 1 100`; do curl -s http://internal-ElasticLoadBalancer-2120497040.us-west-2.elb.amazonaws.com | grep Hello; sleep 1; done
