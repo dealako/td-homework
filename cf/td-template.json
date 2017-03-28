@@ -930,7 +930,7 @@
       "DependsOn" : ["WebServer1Instance", "WebServer2Instance", "WebServer3Instance"],
       "Properties" : {
         "Name" : "ElasticLoadBalancer",
-        "Scheme" : "internal",
+        "Scheme" : "internet-facing",
         "SecurityGroups" : [{"Ref" : "ELBSecurityGroup"}],
         "Subnets" : [{"Ref" : "PublicSubnet2a"}, {"Ref" : "PublicSubnet2b"}, {"Ref" : "PublicSubnet2c"}]
       }
