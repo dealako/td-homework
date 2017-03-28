@@ -71,3 +71,4 @@ Log Files:
 | ELB and EIP       | https://shlomoswidler.com/2009/07/elastic-in-elastic-load-balancing-elb.html |
 | CF Init Debug     | https://forums.aws.amazon.com/message.jspa?messageID=476964 |
 | Practical VPC Design | https://medium.com/aws-activate-startup-blog/practical-vpc-design-8412e1a18dcc |
+| Debugging ELB Issues | http://stackoverflow.com/questions/9257514/amazon-elb-in-vpc |
