@@ -70,3 +70,4 @@ Log Files:
 | CF Referencing Security Group in VPC | http://serverfault.com/questions/786705/cloud-formation-template-add-ingress-rule-to-existing-security-group |
 | ELB and EIP       | https://shlomoswidler.com/2009/07/elastic-in-elastic-load-balancing-elb.html |
 | CF Init Debug     | https://forums.aws.amazon.com/message.jspa?messageID=476964 |
+| Practical VPC Design | https://medium.com/aws-activate-startup-blog/practical-vpc-design-8412e1a18dcc |
