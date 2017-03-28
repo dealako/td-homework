@@ -1,7 +1,8 @@
 # TD Homework Project 
 
 This project contains an Amazon Web Service CloudFormation template and support scripts to provision and deploy
-a set of web servers behind an Elastic Load Balancer.  The deployment leverages Amazon's Virtual Private Cloud.
+a set of web servers behind an Elastic Load Balancer.  The deployment leverages Amazon's Virtual Private Cloud and
+subnets in different Availability Zones.
 
 To access the infrastructure, you must first log into the DevOps workstation which is included with the provisioning.
 
@@ -9,7 +10,13 @@ The below diagram illustrates the deployment.
 
 ![AWS Architecture](images/td-homework.png)
 
-The create and manage the CloudFormation stack, a set of helper scripts (examples) are provided for command line use.
+The default configuration is to provision three (3) web servers in private subnets.  The elastic load balancer will
+broker the HTTP and HTTPS connections and distribute the requests among the available machines:
+
+![AWS Registered Instances](images/web-registered-instances.png)
+
+The create and manage the CloudFormation stack, a set of helper scripts (examples) are provided for command line use in 
+the CloudFormation folder (`./cf/*.sh`).
  
 | Script Name | Purpose |
 |:------------|:--------|
@@ -17,17 +24,21 @@ The create and manage the CloudFormation stack, a set of helper scripts (example
 | `delete-stack.sh` | Deletes the CloudFormation stack in AWS |
 | `get-stack-status.sh` | Provides some diagnostic output and status information about a given CloudFormation stack in AWS |
 | `list-stacks.sh` | Returns a list of CloudFormation stacks under your account in AWS |
+| `update-stack.sh` | Updates the CloudFormation stack in AWS |
+| `validate-template.sh` | Validates the CloudFormation template - this is also done prior to creating or updating the stack |
+
+Other utility scripts are provided for logging and colorized output.
 
 # Prerequisites
 
 - Must have an account in AWS with AWS Access Key and AWS Secret Access Key
 - Must have the [AWS command line tools](https://aws.amazon.com/cli/) installed and configured (`~/.aws/config` and `~/.aws/credentials`)
-- Must have a SSH key created or registered with AWS
+- Must have a SSH key created or registered within your AWS account
 
 # Notes
 
-This CloudFormation template is designed to deploy in the US West 2 region.  The web servers and NAT router are not accessible
-via SSH port 22 unless you first jump to the DevOps box.
+This CloudFormation template is designed to deploy in the US West 2 region.  The web servers and NAT router are *not* 
+accessible via SSH tcp port 22 unless you first jump to the DevOps box.
 
 # TODO
 
